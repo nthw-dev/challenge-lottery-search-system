@@ -1,0 +1,5 @@
+ledger rows      : 0
+reserved tickets : 0
+distinct ticket  : 0
+DUPLICATES (H2, must be 0): 0
+ledger vs status mismatch  : 0

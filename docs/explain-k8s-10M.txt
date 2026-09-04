@@ -1,0 +1,312 @@
+## Relation sizes
+idx_d1	66 MB
+idx_d6	66 MB
+idx_n_d1	6800 kB
+idx_tickets_number	89 MB
+numbers	42 MB
+numbers_pkey	21 MB
+tickets	422 MB
+tickets_pkey	214 MB
+strategy A indexes total: 397 MB
+strategy B extra total  : 192 MB
+
+## strategy 0  pattern 123456
+Limit (actual time=213.690..955.123 rows=9 loops=1)
+  Buffers: shared hit=18354 read=35701
+  ->  Seq Scan on tickets (actual time=213.689..955.115 rows=9 loops=1)
+        Filter: ((status = 0) AND (lpad((number)::text, 6, '0'::text) ~~ '123456'::text))
+        Rows Removed by Filter: 9999991
+        Buffers: shared hit=18354 read=35701
+Planning:
+  Buffers: shared hit=192
+Planning Time: 0.610 ms
+Execution Time: 955.149 ms
+
+## strategy 0  pattern 123***
+Limit (actual time=0.012..2.555 rows=20 loops=1)
+  Buffers: shared hit=148
+  ->  Seq Scan on tickets (actual time=0.012..2.553 rows=20 loops=1)
+        Filter: ((status = 0) AND (lpad((number)::text, 6, '0'::text) ~~ '123___'::text))
+        Rows Removed by Filter: 27322
+        Buffers: shared hit=148
+Planning:
+  Buffers: shared hit=195
+Planning Time: 0.516 ms
+Execution Time: 2.568 ms
+
+## strategy 0  pattern ****23
+Limit (actual time=0.030..0.270 rows=20 loops=1)
+  Buffers: shared hit=15
+  ->  Seq Scan on tickets (actual time=0.029..0.269 rows=20 loops=1)
+        Filter: ((status = 0) AND (lpad((number)::text, 6, '0'::text) ~~ '____23'::text))
+        Rows Removed by Filter: 2617
+        Buffers: shared hit=15
+Planning:
+  Buffers: shared hit=192
+Planning Time: 0.476 ms
+Execution Time: 0.282 ms
+
+## strategy 0  pattern **3***
+Limit (actual time=0.010..0.034 rows=20 loops=1)
+  Buffers: shared hit=2
+  ->  Seq Scan on tickets (actual time=0.009..0.032 rows=20 loops=1)
+        Filter: ((status = 0) AND (lpad((number)::text, 6, '0'::text) ~~ '__3___'::text))
+        Rows Removed by Filter: 215
+        Buffers: shared hit=2
+Planning:
+  Buffers: shared hit=192
+Planning Time: 0.474 ms
+Execution Time: 0.047 ms
+
+## strategy 0  pattern ******
+Limit (actual time=0.010..0.013 rows=20 loops=1)
+  Buffers: shared hit=1
+  ->  Seq Scan on tickets (actual time=0.009..0.012 rows=20 loops=1)
+        Filter: ((status = 0) AND (lpad((number)::text, 6, '0'::text) ~~ '______'::text))
+        Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=192
+Planning Time: 0.486 ms
+Execution Time: 0.025 ms
+
+## strategy A  pattern 123456
+Limit (actual time=93.528..162.736 rows=9 loops=1)
+  Buffers: shared hit=3954 read=50946
+  ->  Gather (actual time=93.527..162.732 rows=9 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=3954 read=50946
+        ->  Parallel Bitmap Heap Scan on tickets (actual time=68.623..158.153 rows=3 loops=3)
+              Recheck Cond: ((((number / 100) % 10) = 4) AND (status = 0))
+              Filter: (((number % 10) = 6) AND (((number / 100000) % 10) = 1) AND (((number / 10000) % 10) = 2) AND (((number / 1000) % 10) = 3) AND (((number / 10) % 10) = 5))
+              Rows Removed by Filter: 333479
+              Heap Blocks: exact=18110
+              Buffers: shared hit=3954 read=50946
+              ->  Bitmap Index Scan on idx_d4 (actual time=18.926..18.926 rows=1000447 loops=1)
+                    Index Cond: (((number / 100) % 10) = 4)
+                    Buffers: shared read=845
+Planning:
+  Buffers: shared hit=185
+Planning Time: 0.477 ms
+Execution Time: 162.768 ms
+
+## strategy A  pattern 123***
+Limit (actual time=19.486..19.842 rows=20 loops=1)
+  Buffers: shared hit=148 read=843
+  ->  Bitmap Heap Scan on tickets (actual time=19.485..19.840 rows=20 loops=1)
+        Recheck Cond: ((((number / 1000) % 10) = 3) AND (status = 0))
+        Filter: ((((number / 100000) % 10) = 1) AND (((number / 10000) % 10) = 2))
+        Rows Removed by Filter: 2677
+        Heap Blocks: exact=148
+        Buffers: shared hit=148 read=843
+        ->  Bitmap Index Scan on idx_d3 (actual time=14.760..14.760 rows=997661 loops=1)
+              Index Cond: (((number / 1000) % 10) = 3)
+              Buffers: shared read=843
+Planning:
+  Buffers: shared hit=185
+Planning Time: 0.480 ms
+Execution Time: 19.886 ms
+
+## strategy A  pattern ****23
+Limit (actual time=0.836..0.871 rows=20 loops=1)
+  Buffers: shared hit=13 read=3
+  ->  Index Scan using idx_d5 on tickets (actual time=0.836..0.869 rows=20 loops=1)
+        Index Cond: (((number / 10) % 10) = 2)
+        Filter: ((number % 10) = 3)
+        Rows Removed by Filter: 182
+        Buffers: shared hit=13 read=3
+Planning:
+  Buffers: shared hit=185
+Planning Time: 0.461 ms
+Execution Time: 0.884 ms
+
+## strategy A  pattern **3***
+Limit (actual time=0.014..0.020 rows=20 loops=1)
+  Buffers: shared hit=5
+  ->  Index Scan using idx_d3 on tickets (actual time=0.013..0.018 rows=20 loops=1)
+        Index Cond: (((number / 1000) % 10) = 3)
+        Buffers: shared hit=5
+Planning:
+  Buffers: shared hit=185
+Planning Time: 0.440 ms
+Execution Time: 0.034 ms
+
+## strategy A  pattern ******
+Limit (actual time=0.009..0.011 rows=20 loops=1)
+  Buffers: shared hit=1
+  ->  Seq Scan on tickets (actual time=0.009..0.010 rows=20 loops=1)
+        Filter: (status = 0)
+        Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=186
+Planning Time: 0.486 ms
+Execution Time: 0.022 ms
+
+## strategy B  pattern 123456
+Limit (actual time=5.040..5.415 rows=9 loops=1)
+  Buffers: shared hit=197 read=134
+  ->  Nested Loop (actual time=5.039..5.414 rows=9 loops=1)
+        Buffers: shared hit=197 read=134
+        ->  Bitmap Heap Scan on numbers (actual time=4.515..4.848 rows=1 loops=1)
+              Recheck Cond: ((d5 = 5) AND (d1 = 1) AND (d2 = 2))
+              Filter: ((d3 = 3) AND (d4 = 4) AND (d6 = 6))
+              Rows Removed by Filter: 999
+              Heap Blocks: exact=55
+              Buffers: shared hit=193 read=126
+              ->  BitmapAnd (actual time=3.968..3.969 rows=0 loops=1)
+                    Buffers: shared hit=176 read=88
+                    ->  Bitmap Index Scan on idx_n_d5 (actual time=1.829..1.829 rows=100000 loops=1)
+                          Index Cond: (d5 = 5)
+                          Buffers: shared hit=3 read=87
+                    ->  Bitmap Index Scan on idx_n_d1 (actual time=0.979..0.979 rows=100000 loops=1)
+                          Index Cond: (d1 = 1)
+                          Buffers: shared hit=87
+                    ->  Bitmap Index Scan on idx_n_d2 (actual time=0.996..0.996 rows=100000 loops=1)
+                          Index Cond: (d2 = 2)
+                          Buffers: shared hit=86 read=1
+        ->  Index Scan using idx_tickets_number on tickets (actual time=0.521..0.561 rows=9 loops=1)
+              Index Cond: (number = numbers.n)
+              Buffers: shared hit=4 read=8
+Planning:
+  Buffers: shared hit=407 read=8
+Planning Time: 1.639 ms
+Execution Time: 5.491 ms
+
+## strategy B  pattern 123***
+Limit (actual time=2.906..3.005 rows=20 loops=1)
+  Buffers: shared hit=84 read=95
+  ->  Nested Loop (actual time=2.906..3.003 rows=20 loops=1)
+        Buffers: shared hit=84 read=95
+        ->  Index Scan using idx_n_d1 on numbers (actual time=2.690..2.690 rows=3 loops=1)
+              Index Cond: (d1 = 1)
+              Filter: ((d2 = 2) AND (d3 = 3))
+              Rows Removed by Filter: 23000
+              Buffers: shared hit=71 read=79
+        ->  Index Scan using idx_tickets_number on tickets (actual time=0.075..0.102 rows=7 loops=3)
+              Index Cond: (number = numbers.n)
+              Buffers: shared hit=13 read=16
+Planning:
+  Buffers: shared hit=406
+Planning Time: 0.888 ms
+Execution Time: 3.044 ms
+
+## strategy B  pattern ****23
+Limit (actual time=3.204..3.339 rows=20 loops=1)
+  Buffers: shared hit=15 read=18
+  ->  Nested Loop (actual time=3.204..3.337 rows=20 loops=1)
+        Buffers: shared hit=15 read=18
+        ->  Index Scan using idx_n_d6 on numbers (actual time=3.110..3.112 rows=2 loops=1)
+              Index Cond: (d6 = 3)
+              Filter: (d5 = 2)
+              Rows Removed by Filter: 11
+              Buffers: shared hit=5 read=2
+        ->  Index Scan using idx_tickets_number on tickets (actual time=0.051..0.110 rows=10 loops=2)
+              Index Cond: (number = numbers.n)
+              Buffers: shared hit=10 read=16
+Planning:
+  Buffers: shared hit=403
+Planning Time: 0.918 ms
+Execution Time: 3.369 ms
+
+## strategy B  pattern **3***
+Limit (actual time=0.957..1.067 rows=20 loops=1)
+  Buffers: shared hit=26 read=20
+  ->  Nested Loop (actual time=0.956..1.064 rows=20 loops=1)
+        Buffers: shared hit=26 read=20
+        ->  Seq Scan on numbers (actual time=0.709..0.710 rows=3 loops=1)
+              Filter: (d3 = 3)
+              Rows Removed by Filter: 3000
+              Buffers: shared hit=6 read=11
+        ->  Index Scan using idx_tickets_number on tickets (actual time=0.086..0.117 rows=7 loops=3)
+              Index Cond: (number = numbers.n)
+              Buffers: shared hit=20 read=9
+Planning:
+  Buffers: shared hit=400
+Planning Time: 0.938 ms
+Execution Time: 1.093 ms
+
+## strategy B  pattern ******
+Limit (actual time=0.010..0.012 rows=20 loops=1)
+  Buffers: shared hit=1
+  ->  Seq Scan on tickets (actual time=0.009..0.011 rows=20 loops=1)
+        Filter: (status = 0)
+        Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=186
+Planning Time: 0.511 ms
+Execution Time: 0.023 ms
+
+## strategy C  pattern 123456
+Limit (actual time=0.018..0.050 rows=9 loops=1)
+  Buffers: shared hit=12
+  ->  Index Scan using idx_tickets_number on tickets (actual time=0.017..0.048 rows=9 loops=1)
+        Index Cond: (number = 123456)
+        Buffers: shared hit=12
+Planning:
+  Buffers: shared hit=191
+Planning Time: 0.480 ms
+Execution Time: 0.062 ms
+
+## strategy C  pattern 123***
+Limit (actual time=0.041..0.093 rows=20 loops=1)
+  Buffers: shared hit=33
+  ->  Nested Loop (actual time=0.040..0.091 rows=20 loops=1)
+        Buffers: shared hit=33
+        ->  Index Only Scan using numbers_pkey on numbers (actual time=0.026..0.027 rows=3 loops=1)
+              Index Cond: ((n >= 123000) AND (n <= 123999))
+              Heap Fetches: 0
+              Buffers: shared hit=4
+        ->  Index Scan using idx_tickets_number on tickets (actual time=0.005..0.020 rows=7 loops=3)
+              Index Cond: (number = numbers.n)
+              Buffers: shared hit=29
+Planning:
+  Buffers: shared hit=394
+Planning Time: 0.835 ms
+Execution Time: 0.120 ms
+
+## strategy C  pattern ****23
+Limit (actual time=0.044..0.099 rows=20 loops=1)
+  Buffers: shared hit=33
+  ->  Nested Loop (actual time=0.044..0.098 rows=20 loops=1)
+        Buffers: shared hit=33
+        ->  Index Scan using idx_n_d6 on numbers (actual time=0.031..0.032 rows=2 loops=1)
+              Index Cond: (d6 = 3)
+              Filter: (d5 = 2)
+              Rows Removed by Filter: 11
+              Buffers: shared hit=7
+        ->  Index Scan using idx_tickets_number on tickets (actual time=0.008..0.031 rows=10 loops=2)
+              Index Cond: (number = numbers.n)
+              Buffers: shared hit=26
+Planning:
+  Buffers: shared hit=403
+Planning Time: 0.895 ms
+Execution Time: 0.130 ms
+
+## strategy C  pattern **3***
+Limit (actual time=0.110..0.173 rows=20 loops=1)
+  Buffers: shared hit=46
+  ->  Nested Loop (actual time=0.109..0.172 rows=20 loops=1)
+        Buffers: shared hit=46
+        ->  Seq Scan on numbers (actual time=0.098..0.099 rows=3 loops=1)
+              Filter: (d3 = 3)
+              Rows Removed by Filter: 3000
+              Buffers: shared hit=17
+        ->  Index Scan using idx_tickets_number on tickets (actual time=0.004..0.024 rows=7 loops=3)
+              Index Cond: (number = numbers.n)
+              Buffers: shared hit=29
+Planning:
+  Buffers: shared hit=400
+Planning Time: 0.848 ms
+Execution Time: 0.196 ms
+
+## strategy C  pattern ******
+Limit (actual time=0.008..0.010 rows=20 loops=1)
+  Buffers: shared hit=1
+  ->  Seq Scan on tickets (actual time=0.008..0.009 rows=20 loops=1)
+        Filter: (status = 0)
+        Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=186
+Planning Time: 0.441 ms
+Execution Time: 0.019 ms
+
