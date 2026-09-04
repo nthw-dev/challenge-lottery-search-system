@@ -12,8 +12,8 @@ Author: **[Natthawat Narin](https://nthw-dev.vercel.app/)**.
 **[DESIGN_DOCUMENT.md](DESIGN_DOCUMENT.md)** is the deliverable. It answers the four questions the
 challenge asks — storage choice, indexing strategy for wildcard matching, performance analysis, and
 the concurrency strategy that prevents duplicate distribution — and every number in it was measured,
-not estimated. The same document is also available as a self-contained HTML page in
-[English](docs/DESIGN_DOCUMENT.html) and [Thai](docs/DESIGN_DOCUMENT.th.html).
+not estimated. The same document is also available as a PDF in
+[English](docs/DESIGN_DOCUMENT.pdf) and [Thai](docs/DESIGN_DOCUMENT.th.pdf).
 
 | Goal from the challenge | Result |
 |---|---|
@@ -29,7 +29,7 @@ not estimated. The same document is also available as a self-contained HTML page
 | [`DESIGN_DOCUMENT.md`](DESIGN_DOCUMENT.md) | The design, in the Engineering Design Doc structure: context, goals, overview, detailed design, alternatives considered, cross-cutting concerns, validation, risks, appendix |
 | [`adr/`](adr/README.md) | Eight architecture decision records — one per significant decision, each with the alternatives rejected and the evidence bundle that supports it |
 | [`docs/RESULTS.md`](docs/RESULTS.md) | Full analysis of every load-test run, including the PostgreSQL 16 vs 17 comparison and the rejected Strategy D |
-| [`docs/REPORT.html`](docs/REPORT.html), [`docs/CAPACITY.html`](docs/CAPACITY.html) | The test report and the 10,000 req/s capacity plan, written for a wider audience (Thai) |
+| [`docs/REPORT.pdf`](docs/REPORT.pdf), [`docs/CAPACITY.pdf`](docs/CAPACITY.pdf) | The test report and the 10,000 req/s capacity plan, written for a wider audience (Thai) |
 | [`docs/evidence/`](docs/evidence/README.md) | One bundle per run: the complete k6 log, summary JSON and HTML, nine resource charts, the raw samples the charts were drawn from, and the SQL verification output |
 | [`docs/explain-k8s-10M.txt`](docs/explain-k8s-10M.txt) | `EXPLAIN (ANALYZE, BUFFERS)` for every strategy and pattern class at 10M rows; `-orderby.txt` is the rejected design |
 | [`TECH_SPEC.md`](TECH_SPEC.md) | The proof-of-concept specification the measurements were built to (Thai) |
