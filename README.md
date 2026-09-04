@@ -5,7 +5,7 @@ pattern (`****23`), and handing each match to exactly one user at a time.
 
 This is **Part 2** of [backend-challenge](https://github.com/7-solutions/backend-challenge)
 — the Lottery Search System section, a design exercise with no code required.
-Author: **Natthawat Narin**.
+Author: **[Natthawat Narin](https://nthw-dev.vercel.app/)**.
 
 ## Start here
 
@@ -45,3 +45,13 @@ The proof-of-concept source is in a separate repository, in keeping with the cha
 required": **[github.com/nthw-dev/poc-lottery-search-system](https://github.com/nthw-dev/poc-lottery-search-system)** — the solution architecture,
 data structures, algorithms and load tests that produced every measurement cited here. This
 repository holds the design and the evidence for it.
+
+## The other part
+
+**Part 1** of the same challenge — the User Management API, a REST API in Go with MongoDB, JWT and a
+gRPC adapter — is in a separate repository:
+**[github.com/nthw-dev/challenge-user-management-api](https://github.com/nthw-dev/challenge-user-management-api)**.
+
+---
+
+Written for a programming skills assessment.
