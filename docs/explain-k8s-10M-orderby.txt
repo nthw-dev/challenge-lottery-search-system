@@ -1,382 +1,293 @@
 ## Relation sizes
-idx_d1	66 MB
-idx_d6	66 MB
+idx_d1	68 MB
+idx_d6	68 MB
 idx_n_d1	6800 kB
-idx_tickets_number	89 MB
+idx_tickets_number	97 MB
 numbers	42 MB
 numbers_pkey	21 MB
-tickets	422 MB
+tickets	438 MB
 tickets_pkey	214 MB
-strategy A indexes total: 397 MB
-strategy B extra total  : 192 MB
-
-## strategy 0  pattern 123456
-Limit (actual time=481.208..2277.095 rows=9 loops=1)
-  Buffers: shared read=81380 written=31
-  ->  Index Scan using tickets_pkey on tickets (actual time=481.207..2277.090 rows=9 loops=1)
-        Filter: ((status = 0) AND (lpad((number)::text, 6, '0'::text) ~~ '123456'::text))
-        Rows Removed by Filter: 9999991
-        Buffers: shared read=81380 written=31
-Planning:
-  Buffers: shared hit=210
-Planning Time: 0.532 ms
-Execution Time: 2277.120 ms
-
-## strategy 0  pattern 123***
-Limit (actual time=0.098..4.521 rows=20 loops=1)
-  Buffers: shared read=225
-  ->  Index Scan using tickets_pkey on tickets (actual time=0.097..4.518 rows=20 loops=1)
-        Filter: ((status = 0) AND (lpad((number)::text, 6, '0'::text) ~~ '123___'::text))
-        Rows Removed by Filter: 27322
-        Buffers: shared read=225
-Planning:
-  Buffers: shared hit=204 read=9
-Planning Time: 1.414 ms
-Execution Time: 4.544 ms
-
-## strategy 0  pattern ****23
-Limit (actual time=0.023..0.282 rows=20 loops=1)
-  Buffers: shared hit=22
-  ->  Index Scan using tickets_pkey on tickets (actual time=0.022..0.280 rows=20 loops=1)
-        Filter: ((status = 0) AND (lpad((number)::text, 6, '0'::text) ~~ '____23'::text))
-        Rows Removed by Filter: 2247
-        Buffers: shared hit=22
-Planning:
-  Buffers: shared hit=210
-Planning Time: 0.489 ms
-Execution Time: 0.297 ms
-
-## strategy 0  pattern **3***
-Limit (actual time=0.019..0.080 rows=20 loops=1)
-  Buffers: shared hit=5
-  ->  Index Scan using tickets_pkey on tickets (actual time=0.018..0.078 rows=20 loops=1)
-        Filter: ((status = 0) AND (lpad((number)::text, 6, '0'::text) ~~ '__3___'::text))
-        Rows Removed by Filter: 249
-        Buffers: shared hit=5
-Planning:
-  Buffers: shared hit=210
-Planning Time: 0.632 ms
-Execution Time: 0.114 ms
-
-## strategy 0  pattern ******
-Limit (actual time=0.012..0.017 rows=20 loops=1)
-  Buffers: shared hit=4
-  ->  Index Scan using tickets_pkey on tickets (actual time=0.011..0.015 rows=20 loops=1)
-        Filter: ((status = 0) AND (lpad((number)::text, 6, '0'::text) ~~ '______'::text))
-        Buffers: shared hit=4
-Planning:
-  Buffers: shared hit=210
-Planning Time: 0.478 ms
-Execution Time: 0.031 ms
-
-## strategy A  pattern 123456
-Limit (actual time=357.545..360.865 rows=9 loops=1)
-  Buffers: shared hit=151 read=54752 written=6
-  ->  Sort (actual time=357.544..360.863 rows=9 loops=1)
-        Sort Key: id
-        Sort Method: quicksort  Memory: 25kB
-        Buffers: shared hit=151 read=54752 written=6
-        ->  Gather (actual time=212.371..360.837 rows=9 loops=1)
-              Workers Planned: 2
-              Workers Launched: 2
-              Buffers: shared hit=148 read=54752 written=6
-              ->  Parallel Bitmap Heap Scan on tickets (actual time=169.515..355.618 rows=3 loops=3)
-                    Recheck Cond: ((((number / 100) % 10) = 4) AND (status = 0))
-                    Filter: (((number % 10) = 6) AND (((number / 100000) % 10) = 1) AND (((number / 10000) % 10) = 2) AND (((number / 1000) % 10) = 3) AND (((number / 10) % 10) = 5))
-                    Rows Removed by Filter: 333479
-                    Heap Blocks: exact=17967
-                    Buffers: shared hit=148 read=54752 written=6
-                    ->  Bitmap Index Scan on idx_d4 (actual time=41.854..41.855 rows=1000447 loops=1)
-                          Index Cond: (((number / 100) % 10) = 4)
-                          Buffers: shared read=845
-Planning:
-  Buffers: shared hit=198
-Planning Time: 0.501 ms
-Execution Time: 360.914 ms
-
-## strategy A  pattern 123***
-Limit (actual time=290.699..293.984 rows=20 loops=1)
-  Buffers: shared hit=29 read=54885
-  ->  Gather Merge (actual time=290.698..293.982 rows=20 loops=1)
-        Workers Planned: 2
-        Workers Launched: 2
-        Buffers: shared hit=29 read=54885
-        ->  Sort (actual time=289.052..289.053 rows=17 loops=3)
-              Sort Key: id
-              Sort Method: top-N heapsort  Memory: 25kB
-              Buffers: shared hit=29 read=54885
-              Worker 0:  Sort Method: top-N heapsort  Memory: 25kB
-              Worker 1:  Sort Method: top-N heapsort  Memory: 25kB
-              ->  Parallel Bitmap Heap Scan on tickets (actual time=21.621..288.300 rows=3373 loops=3)
-                    Recheck Cond: ((((number / 1000) % 10) = 3) AND (status = 0))
-                    Filter: ((((number / 100000) % 10) = 1) AND (((number / 10000) % 10) = 2))
-                    Rows Removed by Filter: 329181
-                    Heap Blocks: exact=18015
-                    Buffers: shared hit=13 read=54885
-                    ->  Bitmap Index Scan on idx_d3 (actual time=17.503..17.503 rows=997661 loops=1)
-                          Index Cond: (((number / 1000) % 10) = 3)
-                          Buffers: shared read=843
-Planning:
-  Buffers: shared hit=198
-Planning Time: 0.579 ms
-Execution Time: 294.038 ms
-
-## strategy A  pattern ****23
-Limit (actual time=1.965..2.909 rows=20 loops=1)
-  Buffers: shared hit=11 read=38
-  ->  Gather Merge (actual time=1.964..2.907 rows=20 loops=1)
-        Workers Planned: 2
-        Workers Launched: 2
-        Buffers: shared hit=11 read=38
-        ->  Parallel Index Scan using tickets_pkey on tickets (actual time=0.191..0.406 rows=14 loops=3)
-              Filter: ((status = 0) AND ((number % 10) = 3) AND (((number / 10) % 10) = 2))
-              Rows Removed by Filter: 1348
-              Buffers: shared hit=11 read=38
-Planning:
-  Buffers: shared hit=198
-Planning Time: 0.486 ms
-Execution Time: 2.936 ms
-
-## strategy A  pattern **3***
-Limit (actual time=0.018..0.031 rows=20 loops=1)
-  Buffers: shared hit=5
-  ->  Index Scan using tickets_pkey on tickets (actual time=0.017..0.030 rows=20 loops=1)
-        Filter: ((status = 0) AND (((number / 1000) % 10) = 3))
-        Rows Removed by Filter: 249
-        Buffers: shared hit=5
-Planning:
-  Buffers: shared hit=198
-Planning Time: 0.480 ms
-Execution Time: 0.046 ms
-
-## strategy A  pattern ******
-Limit (actual time=0.017..0.020 rows=20 loops=1)
-  Buffers: shared hit=4
-  ->  Index Scan using tickets_pkey on tickets (actual time=0.017..0.018 rows=20 loops=1)
-        Filter: (status = 0)
-        Buffers: shared hit=4
-Planning:
-  Buffers: shared hit=204
-Planning Time: 0.513 ms
-Execution Time: 0.034 ms
+strategy A indexes total: 405 MB
+strategy B extra total  : 201 MB
 
 ## strategy B  pattern 123456
-Limit (actual time=10.053..10.055 rows=9 loops=1)
-  Buffers: shared hit=11 read=323
-  ->  Sort (actual time=10.051..10.053 rows=9 loops=1)
+Limit (actual time=4.143..4.145 rows=9 loops=1)
+  Buffers: shared hit=372
+  ->  Sort (actual time=4.142..4.144 rows=9 loops=1)
         Sort Key: tickets.id
         Sort Method: quicksort  Memory: 25kB
-        Buffers: shared hit=11 read=323
-        ->  Nested Loop (actual time=8.648..10.036 rows=9 loops=1)
-              Buffers: shared hit=8 read=323
-              ->  Bitmap Heap Scan on numbers (actual time=8.287..9.605 rows=1 loops=1)
-                    Recheck Cond: ((d5 = 5) AND (d1 = 1) AND (d2 = 2))
-                    Filter: ((d3 = 3) AND (d4 = 4) AND (d6 = 6))
-                    Rows Removed by Filter: 999
-                    Heap Blocks: exact=55
-                    Buffers: shared hit=3 read=316
-                    ->  BitmapAnd (actual time=7.271..7.272 rows=0 loops=1)
-                          Buffers: shared hit=3 read=261
-                          ->  Bitmap Index Scan on idx_n_d5 (actual time=2.455..2.455 rows=100000 loops=1)
-                                Index Cond: (d5 = 5)
-                                Buffers: shared hit=3 read=87
-                          ->  Bitmap Index Scan on idx_n_d1 (actual time=2.527..2.527 rows=100000 loops=1)
-                                Index Cond: (d1 = 1)
-                                Buffers: shared read=87
-                          ->  Bitmap Index Scan on idx_n_d2 (actual time=2.094..2.094 rows=100000 loops=1)
+        Buffers: shared hit=372
+        ->  Nested Loop (actual time=4.086..4.128 rows=9 loops=1)
+              Buffers: shared hit=369
+              ->  Bitmap Heap Scan on numbers (actual time=4.064..4.075 rows=1 loops=1)
+                    Recheck Cond: ((d2 = 2) AND (d3 = 3) AND (d1 = 1) AND (d5 = 5))
+                    Filter: ((d4 = 4) AND (d6 = 6))
+                    Rows Removed by Filter: 99
+                    Heap Blocks: exact=6
+                    Buffers: shared hit=357
+                    ->  BitmapAnd (actual time=4.043..4.044 rows=0 loops=1)
+                          Buffers: shared hit=351
+                          ->  Bitmap Index Scan on idx_n_d2 (actual time=0.915..0.915 rows=100000 loops=1)
                                 Index Cond: (d2 = 2)
-                                Buffers: shared read=87
-              ->  Index Scan using idx_tickets_number on tickets (actual time=0.358..0.426 rows=9 loops=1)
+                                Buffers: shared hit=90
+                          ->  Bitmap Index Scan on idx_n_d3 (actual time=0.931..0.931 rows=100000 loops=1)
+                                Index Cond: (d3 = 3)
+                                Buffers: shared hit=87
+                          ->  Bitmap Index Scan on idx_n_d1 (actual time=0.940..0.940 rows=100000 loops=1)
+                                Index Cond: (d1 = 1)
+                                Buffers: shared hit=87
+                          ->  Bitmap Index Scan on idx_n_d5 (actual time=1.223..1.223 rows=100000 loops=1)
+                                Index Cond: (d5 = 5)
+                                Buffers: shared hit=87
+              ->  Index Scan using idx_tickets_number on tickets (actual time=0.019..0.049 rows=9 loops=1)
                     Index Cond: (number = numbers.n)
-                    Buffers: shared hit=5 read=7
+                    Buffers: shared hit=12
 Planning:
-  Buffers: shared hit=415 read=14 dirtied=1
-Planning Time: 1.858 ms
-Execution Time: 10.385 ms
+  Buffers: shared hit=415
+Planning Time: 1.071 ms
+Execution Time: 4.207 ms
 
 ## strategy B  pattern 123***
-Limit (actual time=416.381..423.034 rows=20 loops=1)
-  Buffers: shared hit=198575 read=8478
-  ->  Gather Merge (actual time=416.380..423.031 rows=20 loops=1)
+Limit (actual time=59.189..61.311 rows=20 loops=1)
+  Buffers: shared hit=156221 read=8088
+  ->  Gather Merge (actual time=59.188..61.309 rows=20 loops=1)
         Workers Planned: 2
         Workers Launched: 2
-        Buffers: shared hit=198575 read=8478
-        ->  Nested Loop (actual time=94.342..279.537 rows=14 loops=3)
-              Buffers: shared hit=198575 read=8478
-              ->  Parallel Index Scan using tickets_pkey on tickets (actual time=0.029..2.271 rows=17399 loops=3)
+        Buffers: shared hit=156221 read=8088
+        ->  Nested Loop (actual time=3.604..37.339 rows=14 loops=3)
+              Buffers: shared hit=156221 read=8088
+              ->  Parallel Index Scan using tickets_pkey on tickets (actual time=0.037..2.092 rows=13282 loops=3)
                     Filter: (status = 0)
-                    Buffers: shared hit=162 read=389
-              ->  Memoize (actual time=0.016..0.016 rows=0 loops=52198)
+                    Buffers: shared hit=6471 read=112
+              ->  Memoize (actual time=0.003..0.003 rows=0 loops=39846)
                     Cache Key: tickets.number
                     Cache Mode: logical
-                    Hits: 3  Misses: 2840  Evictions: 0  Overflows: 0  Memory Usage: 189kB
-                    Buffers: shared hit=198413 read=8089
-                    Worker 0:  Hits: 310  Misses: 26020  Evictions: 0  Overflows: 0  Memory Usage: 1729kB
-                    Worker 1:  Hits: 260  Misses: 22765  Evictions: 0  Overflows: 0  Memory Usage: 1513kB
-                    ->  Index Scan using numbers_pkey on numbers (actual time=0.016..0.016 rows=0 loops=51625)
+                    Hits: 0  Misses: 600  Evictions: 0  Overflows: 0  Memory Usage: 40kB
+                    Buffers: shared hit=149750 read=7976
+                    Worker 0:  Hits: 232  Misses: 20862  Evictions: 0  Overflows: 0  Memory Usage: 1387kB
+                    Worker 1:  Hits: 183  Misses: 17969  Evictions: 0  Overflows: 0  Memory Usage: 1194kB
+                    ->  Index Scan using numbers_pkey on numbers (actual time=0.002..0.002 rows=0 loops=39431)
                           Index Cond: (n = tickets.number)
                           Filter: ((d1 = 1) AND (d2 = 2) AND (d3 = 3))
                           Rows Removed by Filter: 1
-                          Buffers: shared hit=198413 read=8089
+                          Buffers: shared hit=149750 read=7976
 Planning:
   Buffers: shared hit=406
-Planning Time: 0.921 ms
-Execution Time: 424.323 ms
+Planning Time: 1.060 ms
+Execution Time: 61.519 ms
+
+## strategy B  pattern 12*4**
+Limit (actual time=50.492..51.933 rows=20 loops=1)
+  Buffers: shared hit=197285 read=23
+  ->  Gather Merge (actual time=50.491..51.931 rows=20 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=197285 read=23
+        ->  Nested Loop (actual time=4.860..34.489 rows=14 loops=3)
+              Buffers: shared hit=197285 read=23
+              ->  Parallel Index Scan using tickets_pkey on tickets (actual time=0.014..2.269 rows=15952 loops=3)
+                    Filter: (status = 0)
+                    Buffers: shared hit=7900 read=22
+              ->  Memoize (actual time=0.002..0.002 rows=0 loops=47857)
+                    Cache Key: tickets.number
+                    Cache Mode: logical
+                    Hits: 0  Misses: 2015  Evictions: 0  Overflows: 0  Memory Usage: 134kB
+                    Buffers: shared hit=189385 read=1
+                    Worker 0:  Hits: 280  Misses: 23027  Evictions: 0  Overflows: 0  Memory Usage: 1530kB
+                    Worker 1:  Hits: 231  Misses: 22304  Evictions: 0  Overflows: 0  Memory Usage: 1482kB
+                    ->  Index Scan using numbers_pkey on numbers (actual time=0.002..0.002 rows=0 loops=47346)
+                          Index Cond: (n = tickets.number)
+                          Filter: ((d1 = 1) AND (d2 = 2) AND (d4 = 4))
+                          Rows Removed by Filter: 1
+                          Buffers: shared hit=189385 read=1
+Planning:
+  Buffers: shared hit=406
+Planning Time: 0.855 ms
+Execution Time: 52.172 ms
 
 ## strategy B  pattern ****23
-Limit (actual time=0.104..6.420 rows=20 loops=1)
-  Buffers: shared hit=9086
-  ->  Nested Loop (actual time=0.103..6.417 rows=20 loops=1)
-        Buffers: shared hit=9086
-        ->  Index Scan using tickets_pkey on tickets (actual time=0.017..0.201 rows=2267 loops=1)
+Limit (actual time=1.001..6.826 rows=20 loops=1)
+  Buffers: shared hit=8320
+  ->  Nested Loop (actual time=1.001..6.824 rows=20 loops=1)
+        Buffers: shared hit=8320
+        ->  Index Scan using tickets_pkey on tickets (actual time=0.018..0.394 rows=1993 loops=1)
               Filter: (status = 0)
-              Buffers: shared hit=22
-        ->  Memoize (actual time=0.003..0.003 rows=0 loops=2267)
+              Buffers: shared hit=348
+        ->  Memoize (actual time=0.003..0.003 rows=0 loops=1993)
               Cache Key: tickets.number
               Cache Mode: logical
-              Hits: 1  Misses: 2266  Evictions: 0  Overflows: 0  Memory Usage: 152kB
-              Buffers: shared hit=9064
-              ->  Index Scan using numbers_pkey on numbers (actual time=0.002..0.002 rows=0 loops=2266)
+              Hits: 0  Misses: 1993  Evictions: 0  Overflows: 0  Memory Usage: 134kB
+              Buffers: shared hit=7972
+              ->  Index Scan using numbers_pkey on numbers (actual time=0.002..0.002 rows=0 loops=1993)
                     Index Cond: (n = tickets.number)
                     Filter: ((d5 = 2) AND (d6 = 3))
                     Rows Removed by Filter: 1
-                    Buffers: shared hit=9064
+                    Buffers: shared hit=7972
 Planning:
   Buffers: shared hit=403
-Planning Time: 0.880 ms
-Execution Time: 7.894 ms
+Planning Time: 0.914 ms
+Execution Time: 6.995 ms
 
 ## strategy B  pattern **3***
-Limit (actual time=0.085..1.665 rows=20 loops=1)
-  Buffers: shared hit=1081
-  ->  Nested Loop (actual time=0.084..1.662 rows=20 loops=1)
-        Buffers: shared hit=1081
-        ->  Index Scan using tickets_pkey on tickets (actual time=0.045..0.071 rows=269 loops=1)
+Limit (actual time=0.967..1.729 rows=20 loops=1)
+  Buffers: shared hit=1038
+  ->  Nested Loop (actual time=0.966..1.727 rows=20 loops=1)
+        Buffers: shared hit=1038
+        ->  Index Scan using tickets_pkey on tickets (actual time=0.017..0.068 rows=251 loops=1)
               Filter: (status = 0)
-              Buffers: shared hit=5
-        ->  Memoize (actual time=0.006..0.006 rows=0 loops=269)
+              Buffers: shared hit=34
+        ->  Memoize (actual time=0.007..0.007 rows=0 loops=251)
               Cache Key: tickets.number
               Cache Mode: logical
-              Hits: 0  Misses: 269  Evictions: 0  Overflows: 0  Memory Usage: 19kB
-              Buffers: shared hit=1076
-              ->  Index Scan using numbers_pkey on numbers (actual time=0.005..0.005 rows=0 loops=269)
+              Hits: 0  Misses: 251  Evictions: 0  Overflows: 0  Memory Usage: 18kB
+              Buffers: shared hit=1004
+              ->  Index Scan using numbers_pkey on numbers (actual time=0.003..0.003 rows=0 loops=251)
                     Index Cond: (n = tickets.number)
                     Filter: (d3 = 3)
                     Rows Removed by Filter: 1
-                    Buffers: shared hit=1076
+                    Buffers: shared hit=1004
 Planning:
   Buffers: shared hit=400
-Planning Time: 0.896 ms
-Execution Time: 3.026 ms
+Planning Time: 0.847 ms
+Execution Time: 1.873 ms
 
 ## strategy B  pattern ******
-Limit (actual time=0.018..0.020 rows=20 loops=1)
-  Buffers: shared hit=4
-  ->  Index Scan using tickets_pkey on tickets (actual time=0.017..0.019 rows=20 loops=1)
+Limit (actual time=0.026..0.037 rows=20 loops=1)
+  Buffers: shared hit=8
+  ->  Index Scan using tickets_pkey on tickets (actual time=0.025..0.035 rows=20 loops=1)
         Filter: (status = 0)
-        Buffers: shared hit=4
+        Buffers: shared hit=8
 Planning:
   Buffers: shared hit=204
-Planning Time: 0.458 ms
-Execution Time: 0.033 ms
+Planning Time: 0.467 ms
+Execution Time: 0.056 ms
 
 ## strategy C  pattern 123456
-Limit (actual time=0.065..0.065 rows=9 loops=1)
+Limit (actual time=0.070..0.071 rows=9 loops=1)
   Buffers: shared hit=15
-  ->  Sort (actual time=0.064..0.064 rows=9 loops=1)
+  ->  Sort (actual time=0.070..0.070 rows=9 loops=1)
         Sort Key: id
         Sort Method: quicksort  Memory: 25kB
         Buffers: shared hit=15
-        ->  Index Scan using idx_tickets_number on tickets (actual time=0.019..0.050 rows=9 loops=1)
+        ->  Index Scan using idx_tickets_number on tickets (actual time=0.018..0.055 rows=9 loops=1)
               Index Cond: (number = 123456)
               Buffers: shared hit=12
 Planning:
   Buffers: shared hit=204
-Planning Time: 0.487 ms
-Execution Time: 0.081 ms
+Planning Time: 0.460 ms
+Execution Time: 0.091 ms
 
 ## strategy C  pattern 123***
-Limit (actual time=13.273..14.779 rows=20 loops=1)
-  Buffers: shared hit=678
-  ->  Gather Merge (actual time=13.273..14.777 rows=20 loops=1)
+Limit (actual time=11.280..13.117 rows=20 loops=1)
+  Buffers: shared hit=6718
+  ->  Gather Merge (actual time=11.279..13.115 rows=20 loops=1)
         Workers Planned: 2
         Workers Launched: 2
-        Buffers: shared hit=678
-        ->  Nested Loop (actual time=0.186..6.837 rows=14 loops=3)
-              Buffers: shared hit=678
-              ->  Parallel Index Scan using tickets_pkey on tickets (actual time=0.011..1.622 rows=17396 loops=3)
+        Buffers: shared hit=6718
+        ->  Nested Loop (actual time=0.976..6.134 rows=14 loops=3)
+              Buffers: shared hit=6718
+              ->  Parallel Index Scan using tickets_pkey on tickets (actual time=0.022..1.636 rows=13282 loops=3)
                     Filter: (status = 0)
-                    Buffers: shared hit=547
-              ->  Memoize (actual time=0.000..0.000 rows=0 loops=52188)
+                    Buffers: shared hit=6587
+              ->  Memoize (actual time=0.000..0.000 rows=0 loops=39846)
                     Cache Key: tickets.number
                     Cache Mode: logical
-                    Hits: 3  Misses: 2840  Evictions: 0  Overflows: 0  Memory Usage: 189kB
+                    Hits: 0  Misses: 600  Evictions: 0  Overflows: 0  Memory Usage: 40kB
                     Buffers: shared hit=131
-                    Worker 0:  Hits: 252  Misses: 23129  Evictions: 0  Overflows: 0  Memory Usage: 1537kB
-                    Worker 1:  Hits: 300  Misses: 25664  Evictions: 0  Overflows: 0  Memory Usage: 1705kB
-                    ->  Index Only Scan using numbers_pkey on numbers (actual time=0.000..0.000 rows=0 loops=51633)
+                    Worker 0:  Hits: 170  Misses: 17616  Evictions: 0  Overflows: 0  Memory Usage: 1171kB
+                    Worker 1:  Hits: 232  Misses: 21228  Evictions: 0  Overflows: 0  Memory Usage: 1411kB
+                    ->  Index Only Scan using numbers_pkey on numbers (actual time=0.000..0.000 rows=0 loops=39444)
                           Index Cond: ((n = tickets.number) AND (n >= 123000) AND (n <= 123999))
                           Heap Fetches: 0
                           Buffers: shared hit=131
 Planning:
   Buffers: shared hit=394
-Planning Time: 0.886 ms
-Execution Time: 16.223 ms
+Planning Time: 1.045 ms
+Execution Time: 13.364 ms
+
+## strategy C  pattern 12*4**
+Limit (actual time=12.836..14.314 rows=20 loops=1)
+  Buffers: shared hit=9966
+  ->  Gather Merge (actual time=12.835..14.312 rows=20 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=9966
+        ->  Nested Loop (actual time=1.704..8.305 rows=14 loops=3)
+              Buffers: shared hit=9966
+              ->  Parallel Index Scan using tickets_pkey on tickets (actual time=0.034..2.269 rows=15952 loops=3)
+                    Filter: (status = 0)
+                    Buffers: shared hit=7916
+              ->  Memoize (actual time=0.000..0.000 rows=0 loops=47857)
+                    Cache Key: tickets.number
+                    Cache Mode: logical
+                    Hits: 1  Misses: 3478  Evictions: 0  Overflows: 0  Memory Usage: 232kB
+                    Buffers: shared hit=2050
+                    Worker 0:  Hits: 236  Misses: 22665  Evictions: 0  Overflows: 0  Memory Usage: 1506kB
+                    Worker 1:  Hits: 244  Misses: 21233  Evictions: 0  Overflows: 0  Memory Usage: 1411kB
+                    ->  Index Scan using numbers_pkey on numbers (actual time=0.000..0.000 rows=0 loops=47376)
+                          Index Cond: ((n = tickets.number) AND (n >= 120000) AND (n <= 129999))
+                          Filter: (d4 = 4)
+                          Rows Removed by Filter: 0
+                          Buffers: shared hit=2050
+Planning:
+  Buffers: shared hit=400
+Planning Time: 0.968 ms
+Execution Time: 14.578 ms
 
 ## strategy C  pattern ****23
-Limit (actual time=0.102..6.209 rows=20 loops=1)
-  Buffers: shared hit=9086
-  ->  Nested Loop (actual time=0.101..6.206 rows=20 loops=1)
-        Buffers: shared hit=9086
-        ->  Index Scan using tickets_pkey on tickets (actual time=0.015..0.190 rows=2267 loops=1)
+Limit (actual time=0.992..6.876 rows=20 loops=1)
+  Buffers: shared hit=8320
+  ->  Nested Loop (actual time=0.992..6.874 rows=20 loops=1)
+        Buffers: shared hit=8320
+        ->  Index Scan using tickets_pkey on tickets (actual time=0.016..0.389 rows=1993 loops=1)
               Filter: (status = 0)
-              Buffers: shared hit=22
-        ->  Memoize (actual time=0.003..0.003 rows=0 loops=2267)
+              Buffers: shared hit=348
+        ->  Memoize (actual time=0.003..0.003 rows=0 loops=1993)
               Cache Key: tickets.number
               Cache Mode: logical
-              Hits: 1  Misses: 2266  Evictions: 0  Overflows: 0  Memory Usage: 152kB
-              Buffers: shared hit=9064
-              ->  Index Scan using numbers_pkey on numbers (actual time=0.002..0.002 rows=0 loops=2266)
+              Hits: 0  Misses: 1993  Evictions: 0  Overflows: 0  Memory Usage: 134kB
+              Buffers: shared hit=7972
+              ->  Index Scan using numbers_pkey on numbers (actual time=0.002..0.002 rows=0 loops=1993)
                     Index Cond: (n = tickets.number)
                     Filter: ((d5 = 2) AND (d6 = 3))
                     Rows Removed by Filter: 1
-                    Buffers: shared hit=9064
+                    Buffers: shared hit=7972
 Planning:
   Buffers: shared hit=403
-Planning Time: 0.918 ms
-Execution Time: 7.619 ms
+Planning Time: 0.916 ms
+Execution Time: 7.076 ms
 
 ## strategy C  pattern **3***
-Limit (actual time=0.038..1.842 rows=20 loops=1)
-  Buffers: shared hit=1081
-  ->  Nested Loop (actual time=0.037..1.840 rows=20 loops=1)
-        Buffers: shared hit=1081
-        ->  Index Scan using tickets_pkey on tickets (actual time=0.018..0.041 rows=269 loops=1)
+Limit (actual time=1.118..1.965 rows=20 loops=1)
+  Buffers: shared hit=1038
+  ->  Nested Loop (actual time=1.117..1.963 rows=20 loops=1)
+        Buffers: shared hit=1038
+        ->  Index Scan using tickets_pkey on tickets (actual time=0.018..0.070 rows=251 loops=1)
               Filter: (status = 0)
-              Buffers: shared hit=5
-        ->  Memoize (actual time=0.007..0.007 rows=0 loops=269)
+              Buffers: shared hit=34
+        ->  Memoize (actual time=0.007..0.007 rows=0 loops=251)
               Cache Key: tickets.number
               Cache Mode: logical
-              Hits: 0  Misses: 269  Evictions: 0  Overflows: 0  Memory Usage: 19kB
-              Buffers: shared hit=1076
-              ->  Index Scan using numbers_pkey on numbers (actual time=0.006..0.006 rows=0 loops=269)
+              Hits: 0  Misses: 251  Evictions: 0  Overflows: 0  Memory Usage: 18kB
+              Buffers: shared hit=1004
+              ->  Index Scan using numbers_pkey on numbers (actual time=0.003..0.003 rows=0 loops=251)
                     Index Cond: (n = tickets.number)
                     Filter: (d3 = 3)
                     Rows Removed by Filter: 1
-                    Buffers: shared hit=1076
+                    Buffers: shared hit=1004
 Planning:
   Buffers: shared hit=400
-Planning Time: 0.887 ms
-Execution Time: 2.722 ms
+Planning Time: 0.868 ms
+Execution Time: 2.113 ms
 
 ## strategy C  pattern ******
-Limit (actual time=0.018..0.021 rows=20 loops=1)
-  Buffers: shared hit=4
-  ->  Index Scan using tickets_pkey on tickets (actual time=0.018..0.019 rows=20 loops=1)
+Limit (actual time=0.022..0.031 rows=20 loops=1)
+  Buffers: shared hit=8
+  ->  Index Scan using tickets_pkey on tickets (actual time=0.021..0.029 rows=20 loops=1)
         Filter: (status = 0)
-        Buffers: shared hit=4
+        Buffers: shared hit=8
 Planning:
   Buffers: shared hit=204
-Planning Time: 0.477 ms
-Execution Time: 0.036 ms
+Planning Time: 0.526 ms
+Execution Time: 0.049 ms
 

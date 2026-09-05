@@ -1,5 +1,5 @@
-ledger rows      : 95804
-reserved tickets : 95804
-distinct ticket  : 95804
+ledger rows      : 95630
+reserved tickets : 95630
+distinct ticket  : 95630
 DUPLICATES (H2, must be 0): 0
 ledger vs status mismatch  : 0

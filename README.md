@@ -12,15 +12,15 @@ Author: **[Natthawat Narin](https://nthw-dev.vercel.app/)**.
 **[DESIGN_DOCUMENT.md](DESIGN_DOCUMENT.md)** is the deliverable. It answers the four questions the
 challenge asks — storage choice, indexing strategy for wildcard matching, performance analysis, and
 the concurrency strategy that prevents duplicate distribution — and every number in it was measured,
-not estimated. The same document is also available as a PDF in
+not estimated, on **PostgreSQL 17.11** with 10,000,000 tickets under enforced Kubernetes resource limits. The same document is also available as a PDF in
 [English](docs/DESIGN_DOCUMENT.pdf) and [Thai](docs/DESIGN_DOCUMENT.th.pdf).
 
 | Goal from the challenge | Result |
 |---|---|
-| Wildcard search in any position at 10M rows | p95 **55.8 ms** at 5,346 req/s on one 500m-CPU pod, flat across all wildcard classes |
-| Same pattern, many concurrent users, no duplicate tickets | **351,481** allocations under 200-way contention, **0** duplicates |
+| Wildcard search in any position at 10M rows | p95 **46.7 ms** at 6,068 req/s on one 500m-CPU pod, flat across all wildcard classes |
+| Same pattern, many concurrent users, no duplicate tickets | **342,412** allocations under 200-way contention, **0** duplicates |
 | Chosen index strategy vs a plain `LIKE` baseline | four orders of magnitude on the hardest pattern, with half the index size of the intuitive alternative |
-| Stability under sustained mixed load | 743,994 requests over 10 minutes, 0 errors, 0 restarts, API memory peak 27 MiB of 128 MiB |
+| Stability under sustained mixed load | 942,015 requests over 10 minutes, 0 errors, 0 restarts, API memory peak 26 MiB of 128 MiB |
 
 ## What is in this repository
 
@@ -28,11 +28,11 @@ not estimated. The same document is also available as a PDF in
 |---|---|
 | [`DESIGN_DOCUMENT.md`](DESIGN_DOCUMENT.md) | The design, in the Engineering Design Doc structure: context, goals, overview, detailed design, alternatives considered, cross-cutting concerns, validation, risks, appendix |
 | [`adr/`](adr/README.md) | Eight architecture decision records — one per significant decision, each with the alternatives rejected and the evidence bundle that supports it |
-| [`docs/RESULTS.md`](docs/RESULTS.md) | Full analysis of every load-test run, including the PostgreSQL 16 vs 17 comparison and the rejected Strategy D |
-| [`docs/REPORT.pdf`](docs/REPORT.pdf), [`docs/CAPACITY.pdf`](docs/CAPACITY.pdf) | The test report and the 10,000 req/s capacity plan, written for a wider audience (Thai) |
+| [`docs/RESULTS.md`](docs/RESULTS.md) | Full analysis of every load-test run, including the 10,000 req/s capacity model and the rejected Strategy D |
+| [`docs/REPORT.pdf`](docs/REPORT.pdf), [`docs/CAPACITY.pdf`](docs/CAPACITY.pdf) | The test report and the capacity plan for an illustrative 10,000 req/s target, written for a wider audience (Thai) |
 | [`docs/evidence/`](docs/evidence/README.md) | One bundle per run: the complete k6 log, summary JSON and HTML, nine resource charts, the raw samples the charts were drawn from, and the SQL verification output |
 | [`docs/explain-k8s-10M.txt`](docs/explain-k8s-10M.txt) | `EXPLAIN (ANALYZE, BUFFERS)` for every strategy and pattern class at 10M rows; `-orderby.txt` is the rejected design |
-| [`TECH_SPEC.md`](TECH_SPEC.md) | The proof-of-concept specification the measurements were built to (Thai) |
+| [`TECH_SPEC.md`](TECH_SPEC.md) | The proof-of-concept specification the measurements |
 | [`challenge-lottery-search-system.md`](challenge-lottery-search-system.md) | The challenge as received |
 
 Every bundle under `docs/evidence/` records in `41-run.txt` the scenario, strategy, PostgreSQL version,

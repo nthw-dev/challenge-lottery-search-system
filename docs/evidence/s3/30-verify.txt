@@ -1,7 +1,7 @@
 scenario exercises /v1/release: ledger re-allocations are expected, not H2 violations
-ledger rows        : 1229667
-distinct tickets   : 1089126
-re-allocated after release : 140541
+ledger rows        : 1556674
+distinct tickets   : 1336481
+re-allocated after release : 220193
 still reserved     : 0
 INCONSISTENT rows (must be 0): 0
 orphan ledger rows (must be 0): 0

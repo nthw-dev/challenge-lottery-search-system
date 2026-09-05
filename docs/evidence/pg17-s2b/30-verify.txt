@@ -1,5 +1,0 @@
-ledger rows      : 265344
-reserved tickets : 265344
-distinct ticket  : 265344
-DUPLICATES (H2, must be 0): 0
-ledger vs status mismatch  : 0

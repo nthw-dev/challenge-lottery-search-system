@@ -17,7 +17,7 @@ re-running the test: `make charts DIR=docs/evidence/<run>`.
 | `21-db_mem_free.png` `22-db_disk_free.png` | Postgres headroom, absolute units |
 | `23-db_io_read.png` `24-db_io_write.png` | Postgres block IO, MB/s |
 | `26-db_cpu_throttle.png` | CFS throttling, % of limit — how much CPU the cgroup was denied |
-| `30-verify.txt` | H2 proof: ledger counts and the duplicate query from TECH_SPEC §9.2 |
+| `30-verify.txt` | H2 proof: ledger counts and the duplicate query from TECH_SPEC Section 9.2 |
 | `40-samples.csv` | raw counters the charts are drawn from |
 | `41-run.txt` | scenario, strategy, k6 version, exit code, restart counts, DB size, caveats |
 
